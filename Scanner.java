@@ -48,17 +48,17 @@ public class Scanner {
 
   private Token buildToken(String currentChar) {
     Token nextToken = null;
-    if (LexicalRegexPatterns.LetterPattern.matcher(currentChar).matches()) {
+    if (LexRegex.LetterPattern.matcher(currentChar).matches()) {
       nextToken = buildIdentifierToken(currentChar);
-    } else if (LexicalRegexPatterns.DigitPattern.matcher(currentChar).matches()) {
+    } else if (LexRegex.DigitPattern.matcher(currentChar).matches()) {
       nextToken = buildIntegerToken(currentChar);
-    } else if (LexicalRegexPatterns.OpSymbolPattern.matcher(currentChar).matches()) { 
+    } else if (LexRegex.OpSymbolPattern.matcher(currentChar).matches()) { 
       nextToken = buildOperatorToken(currentChar);
     } else if (currentChar.equals("\'")) {
       nextToken = buildStringToken(currentChar);
-    } else if (LexicalRegexPatterns.SpacePattern.matcher(currentChar).matches()) {
+    } else if (LexRegex.SpacePattern.matcher(currentChar).matches()) {
       nextToken = buildSpaceToken(currentChar);
-    } else if (LexicalRegexPatterns.PunctuationPattern.matcher(currentChar).matches()) {
+    } else if (LexRegex.PunctuationPattern.matcher(currentChar).matches()) {
       nextToken = buildPunctuationPattern(currentChar);
     }
     return nextToken;
@@ -72,7 +72,7 @@ public class Scanner {
 
     String nextChar = readNextChar();
     while (nextChar != null) { 
-      if (LexicalRegexPatterns.IdentifierPattern.matcher(nextChar).matches()) {
+      if (LexRegex.IdentifierPattern.matcher(nextChar).matches()) {
         sBuilder.append(nextChar);
         nextChar = readNextChar();
       } else {
@@ -97,7 +97,7 @@ public class Scanner {
 
     String nextChar = readNextChar();
     while (nextChar != null) {
-      if (LexicalRegexPatterns.DigitPattern.matcher(nextChar).matches()) {
+      if (LexRegex.DigitPattern.matcher(nextChar).matches()) {
         sBuilder.append(nextChar);
         nextChar = readNextChar();
       } else {
@@ -122,7 +122,7 @@ public class Scanner {
       return buildCommentToken(currentChar + nextChar);
 
     while (nextChar != null) { 
-      if (LexicalRegexPatterns.OpSymbolPattern.matcher(nextChar).matches()) {
+      if (LexRegex.OpSymbolPattern.matcher(nextChar).matches()) {
         sBuilder.append(nextChar);
         nextChar = readNextChar();
       } else {
@@ -146,7 +146,7 @@ public class Scanner {
       if (nextChar.equals("\'")) { 
         stringToken.setValue(sBuilder.toString());
         return stringToken;
-      } else if (LexicalRegexPatterns.StringPattern.matcher(nextChar).matches()) { 
+      } else if (LexRegex.StringPattern.matcher(nextChar).matches()) { 
         sBuilder.append(nextChar);
         nextChar = readNextChar();
       }
@@ -162,7 +162,7 @@ public class Scanner {
 
     String nextChar = readNextChar();
     while (nextChar != null) { 
-      if (LexicalRegexPatterns.SpacePattern.matcher(nextChar).matches()) {
+      if (LexRegex.SpacePattern.matcher(nextChar).matches()) {
         sBuilder.append(nextChar);
         nextChar = readNextChar();
       } else {
@@ -182,7 +182,7 @@ public class Scanner {
 
     String nextChar = readNextChar();
     while (nextChar != null) { 
-      if (LexicalRegexPatterns.CommentPattern.matcher(nextChar).matches()) {
+      if (LexRegex.CommentPattern.matcher(nextChar).matches()) {
         sBuilder.append(nextChar);
         nextChar = readNextChar();
       } else if (nextChar.equals("\n"))
