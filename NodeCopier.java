@@ -13,7 +13,6 @@ public class NodeCopier {
       copy.setSibling(astNode.getSibling().accept(this));
     copy.setType(astNode.getType());
     copy.setValue(astNode.getValue());
-    copy.setSourceLineNumber(astNode.getSourceLineNumber());
     return copy;
   }
 
@@ -25,7 +24,6 @@ public class NodeCopier {
       copy.setSibling(beta.getSibling().accept(this));
     copy.setType(beta.getType());
     copy.setValue(beta.getValue());
-    copy.setSourceLineNumber(beta.getSourceLineNumber());
 
     Stack<ASTNode> thenBodyCopy = new Stack<ASTNode>();
     for (ASTNode thenBodyElement : beta.getThenPart()) {
@@ -50,7 +48,6 @@ public class NodeCopier {
       copy.setSibling(eta.getSibling().accept(this));
     copy.setType(eta.getType());
     copy.setValue(eta.getValue());
-    copy.setSourceLineNumber(eta.getSourceLineNumber());
 
     copy.setDelta(eta.getDelta().accept(this));
 
@@ -66,7 +63,6 @@ public class NodeCopier {
     copy.setType(delta.getType());
     copy.setValue(delta.getValue());
     copy.setIndex(delta.getIndex());
-    copy.setSourceLineNumber(delta.getSourceLineNumber());
 
     Stack<ASTNode> bodyCopy = new Stack<ASTNode>();
     for (ASTNode bodyElement : delta.getBody()) {
@@ -91,7 +87,6 @@ public class NodeCopier {
       copy.setSibling(tuple.getSibling().accept(this));
     copy.setType(tuple.getType());
     copy.setValue(tuple.getValue());
-    copy.setSourceLineNumber(tuple.getSourceLineNumber());
     return copy;
   }
 }
