@@ -255,8 +255,8 @@ public class AST {
 
       Beta betaNode = new Beta();
 
-      buildDeltaBody(thenNode, betaNode.getThenBody());
-      buildDeltaBody(elseNode, betaNode.getElseBody());
+      buildDeltaBody(thenNode, betaNode.getThenPart());
+      buildDeltaBody(elseNode, betaNode.getElsePart());
 
       body.push(betaNode);
 

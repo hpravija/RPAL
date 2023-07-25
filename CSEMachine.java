@@ -567,9 +567,9 @@ public class CSEMachine {
           "Expecting a truthvalue; found \"" + conditionResultNode.getValue() + "\"");
 
     if (conditionResultNode.getType() == ASTNodeType.TRUE)
-      currentControlStack.addAll(node.getThenBody());
+      currentControlStack.addAll(node.getThenPart());
     else
-      currentControlStack.addAll(node.getElseBody());
+      currentControlStack.addAll(node.getElsePart());
   }
 
   private int getNumChildren(ASTNode node) {
