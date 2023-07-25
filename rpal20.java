@@ -44,13 +44,13 @@ public class rpal20 {
 
     if (listFlag) {
       if (fileName.isEmpty())
-        throw new ParseException("Please specify a file. Call P2 with -help to see examples");
+        throw new ParseException("Input a relavant file. Call RPAL20 with -help to clarify");
       printInputListing(fileName);
     }
 
     if (astFlag) {
       if (fileName.isEmpty())
-        throw new ParseException("Please specify a file. Call P2 with -help to see examples");
+        throw new ParseException("Input a relavant file. Call RPAL20 with -help to clarify");
       ast = buildAST(fileName, true);
       printAST(ast);
       if (noOutFlag)
@@ -61,7 +61,7 @@ public class rpal20 {
 
     if (stFlag) {
       if (fileName.isEmpty())
-        throw new ParseException("Please specify a file. Call P2 with -help to see examples");
+        throw new ParseException("Input a relavant file. Call RPAL20 with -help to clarify");
       ast = buildAST(fileName, true);
       ast.standardize();
       printAST(ast);
@@ -73,7 +73,7 @@ public class rpal20 {
     // -noout without -ast or -st produces no output
     if (noOutFlag && (!astFlag || !stFlag)) {
       if (fileName.isEmpty())
-        throw new ParseException("Please specify a file. Call P2 with -help to see examples");
+        throw new ParseException("Input a relavant file. Call RPAL20 with -help to clarify");
     }
 
   }
@@ -122,15 +122,15 @@ public class rpal20 {
   }
 
   private static void printHelp() {
-    System.out.println("Usage: java rpal20 [OPTIONS] FILE");
-    System.out.println("Without any switches, prints only the result of evaluating the program");
-    System.out.println("  -ast: prints the abstract syntax tree generated followed by the result");
+    System.out.println("Usage: java rpal20 [OPTIONS] file");
+    System.out.println("Without any switches, print only the result of evaluating the program");
+    System.out.println("  -ast: print ast followed by the result");
     System.out.println("        of evaluating the program");
-    System.out.println("        with -noout, prints only the abstract syntax tree generated");
-    System.out.println("   -st: prints the standardized syntax tree generated followed by the result");
+    System.out.println("        with -noout, print only the ast");
+    System.out.println("   -st: print sst generated after the result");
     System.out.println("        of evaluating the program");
-    System.out.println("        with -noout, prints only the standardized syntax tree generated");
-    System.out.println("    -l: prints the source code listing");
+    System.out.println("        with -noout, prints only the sst");
+    System.out.println("    -l: print source code");
   }
 
 }
