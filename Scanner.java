@@ -15,10 +15,8 @@ public class Scanner {
       .asList(new String[] { "let", "in", "within", "fn", "where", "aug", "or",
           "not", "gr", "ge", "ls", "le", "eq", "ne", "true",
           "false", "nil", "dummy", "rec", "and" });
-  private int sourceLineNumber;
 
   public Scanner(String inputFile) throws IOException {
-    sourceLineNumber = 1;
     buffer = new BufferedReader(new InputStreamReader(new FileInputStream(new File(inputFile))));
   }
 
@@ -41,8 +39,6 @@ public class Scanner {
       int c = buffer.read();
       if (c != -1) {
         nextChar = Character.toString((char) c);
-        if (nextChar.equals("\n"))
-          sourceLineNumber++;
       } else
         buffer.close();
     } catch (IOException e) {
@@ -72,7 +68,6 @@ public class Scanner {
   private Token buildIdentifierToken(String currentChar) {
     Token identifierToken = new Token();
     identifierToken.setType(TokenType.IDENTIFIER);
-    identifierToken.setSourceLineNumber(sourceLineNumber);
     StringBuilder sBuilder = new StringBuilder(currentChar);
 
     String nextChar = readNextChar();
@@ -98,7 +93,6 @@ public class Scanner {
   private Token buildIntegerToken(String currentChar) {
     Token integerToken = new Token();
     integerToken.setType(TokenType.INTEGER);
-    integerToken.setSourceLineNumber(sourceLineNumber);
     StringBuilder sBuilder = new StringBuilder(currentChar);
 
     String nextChar = readNextChar();
@@ -120,7 +114,6 @@ public class Scanner {
   private Token buildOperatorToken(String currentChar) {
     Token opSymbolToken = new Token();
     opSymbolToken.setType(TokenType.OPERATOR);
-    opSymbolToken.setSourceLineNumber(sourceLineNumber);
     StringBuilder sBuilder = new StringBuilder(currentChar);
 
     String nextChar = readNextChar();
@@ -146,7 +139,6 @@ public class Scanner {
   private Token buildStringToken(String currentChar) {
     Token stringToken = new Token();
     stringToken.setType(TokenType.STRING);
-    stringToken.setSourceLineNumber(sourceLineNumber);
     StringBuilder sBuilder = new StringBuilder("");
 
     String nextChar = readNextChar();
@@ -166,7 +158,6 @@ public class Scanner {
   private Token buildSpaceToken(String currentChar) {
     Token deleteToken = new Token();
     deleteToken.setType(TokenType.DELETE);
-    deleteToken.setSourceLineNumber(sourceLineNumber);
     StringBuilder sBuilder = new StringBuilder(currentChar);
 
     String nextChar = readNextChar();
@@ -187,7 +178,6 @@ public class Scanner {
   private Token buildCommentToken(String currentChar) {
     Token commentToken = new Token();
     commentToken.setType(TokenType.DELETE);
-    commentToken.setSourceLineNumber(sourceLineNumber);
     StringBuilder sBuilder = new StringBuilder(currentChar);
 
     String nextChar = readNextChar();
@@ -205,7 +195,6 @@ public class Scanner {
 
   private Token buildPunctuationPattern(String currentChar) {
     Token punctuationToken = new Token();
-    punctuationToken.setSourceLineNumber(sourceLineNumber);
     punctuationToken.setValue(currentChar);
     if (currentChar.equals("("))
       punctuationToken.setType(TokenType.L_PAREN);

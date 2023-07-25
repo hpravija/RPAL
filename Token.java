@@ -2,7 +2,6 @@
 public class Token {
   private TokenType type;
   private String value;
-  private int sourceLineNumber;
 
   public TokenType getType() {
     return type;
@@ -10,10 +9,6 @@ public class Token {
 
   public String getValue() {
     return value;
-  }
-
-  public int getSourceLineNumber() {
-    return sourceLineNumber;
   }
 
   public void setType(TokenType type) {
@@ -24,7 +19,4 @@ public class Token {
     this.value = value;
   }
 
-  public void setSourceLineNumber(int sourceLineNumber) {
-    this.sourceLineNumber = sourceLineNumber;
-  }
 }

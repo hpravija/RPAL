@@ -10,16 +10,16 @@ public class Eta extends ASTNode {
     return "[eta closure: " + delta.getBoundVars().get(0) + ": " + delta.getIndex() + "]";
   }
 
-  public Eta accept(NodeCopier nodeCopier) {
-    return nodeCopier.copy(this);
-  }
-
   public Delta getDelta() {
     return delta;
   }
 
   public void setDelta(Delta delta) {
     this.delta = delta;
+  }
+
+  public Eta accept(NodeCopier nodeCopier) {
+    return nodeCopier.copy(this);
   }
 
 }

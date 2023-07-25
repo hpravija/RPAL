@@ -2,33 +2,33 @@ import java.util.Stack;
 
 // For evaluating conditionals
 public class Beta extends ASTNode {
-  private Stack<ASTNode> thenBody;
-  private Stack<ASTNode> elseBody;
+  private Stack<ASTNode> thenPart;
+  private Stack<ASTNode> elsePart;
 
   public Beta() {
     setType(ASTNodeType.BETA);
-    thenBody = new Stack<ASTNode>();
-    elseBody = new Stack<ASTNode>();
+    thenPart = new Stack<ASTNode>();
+    elsePart = new Stack<ASTNode>();
+  }
+
+  public Stack<ASTNode> getThenPart() {
+    return thenPart;
+  }
+
+  public Stack<ASTNode> getElsePart() {
+    return elsePart;
+  }
+
+  public void setThenPart(Stack<ASTNode> thenPart) {
+    this.thenPart = thenPart;
+  }
+
+  public void setElsePart(Stack<ASTNode> elsePart) {
+    this.elsePart = elsePart;
   }
 
   public Beta accept(NodeCopier nodeCopier) {
     return nodeCopier.copy(this);
-  }
-
-  public Stack<ASTNode> getThenBody() {
-    return thenBody;
-  }
-
-  public Stack<ASTNode> getElseBody() {
-    return elseBody;
-  }
-
-  public void setThenBody(Stack<ASTNode> thenBody) {
-    this.thenBody = thenBody;
-  }
-
-  public void setElseBody(Stack<ASTNode> elseBody) {
-    this.elseBody = elseBody;
   }
 
 }
