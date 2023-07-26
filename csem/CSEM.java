@@ -15,7 +15,7 @@ public class CSEM {
     if (!ast.isStandardized())
       throw new RuntimeException("AST is not standardized!"); // AsT should be standardized earlier
     rootDelta = ast.createDeltas();
-    rootDelta.setLinkedEnv(new Environment()); // primitive environment
+    rootDelta.setLinkedEnvironment(new Environment()); // primitive environment
     CSEStack = new Stack<ASTNode>();
   }
 
@@ -355,7 +355,7 @@ public class CSEM {
     if (rator.getType() == ASTNodeType.DELTA) {
       Delta nextDelta = (Delta) rator;
       Environment newEnv = new Environment();
-      newEnv.setParent(nextDelta.getLinkedEnv());
+      newEnv.setParent(nextDelta.getLinkedEnvironment());
 
       // CSE rule 4
       if (nextDelta.getBoundVars().size() == 1) {
@@ -545,7 +545,7 @@ public class CSEM {
           applyGamma(existingDelta, node, existingEnvironment, existingControlStack);
           break;
         case DELTA:
-          ((Delta) node).setLinkedEnv(existingEnvironment); // CSE rule 2
+          ((Delta) node).setLinkedEnvironment(existingEnvironment); // CSE rule 2
           CSEStack.push(node);
           break;
         default:
@@ -566,6 +566,6 @@ public class CSEM {
 
   // evaluating the program
   public void evaluateProgram() {
-    controlStack(rootDelta, rootDelta.getLinkedEnv());
+    controlStack(rootDelta, rootDelta.getLinkedEnvironment());
   }
 }

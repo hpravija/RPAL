@@ -53,7 +53,7 @@ public class Copier {
     boundVarsCopy.addAll(delta.getBoundVars());
     copy.setBoundVars(boundVarsCopy);
 
-    copy.setLinkedEnv(delta.getLinkedEnv());
+    copy.setLinkedEnvironment(delta.getLinkedEnvironment());
 
     return copy;
   }

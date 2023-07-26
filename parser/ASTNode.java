@@ -45,8 +45,8 @@ public class ASTNode {
   }
 
 
-  public ASTNode accept(Copier nodeCopier) {
-    return nodeCopier.copy(this);
+  public ASTNode accept(Copier copier) {
+    return copier.copy(this);
   }
 
 }

@@ -124,98 +124,6 @@ public class Parser {
     }
   }
 
-  // Tuple expressions
-  private void procT() {
-    procTA();
-    int treesToPop = 0;
-    while (isCurrentToken(TokenType.OPERATOR, ",")) {
-      readNT();
-      procTA();
-      treesToPop++;
-    }
-    if (treesToPop > 0)
-      buildNAryASTNode(ASTNodeType.TAU, treesToPop + 1);
-  }
-
-  private void procTA() {
-    procTC();
-    while (isCurrentToken(TokenType.RESERVED, "aug")) {
-      readNT();
-      procTC();
-      buildNAryASTNode(ASTNodeType.AUG, 2);
-    }
-  }
-
-  private void procTC() {
-    procB();
-    if (isCurrentToken(TokenType.OPERATOR, "->")) {
-      readNT();
-      procTC();
-      if (!isCurrentToken(TokenType.OPERATOR, "|"))
-        throw new ParseException("TC: '|' expected");
-      readNT();
-      procTC();
-      buildNAryASTNode(ASTNodeType.CONDITIONAL, 3);
-    }
-  }
-
-  // Boolean Expressions
-  private void procB() {
-    procBT();
-    while (isCurrentToken(TokenType.RESERVED, "or")) {
-      readNT();
-      procBT();
-      buildNAryASTNode(ASTNodeType.OR, 2);
-    }
-  }
-
-  private void procBT() {
-    procBS(); 
-    while (isCurrentToken(TokenType.OPERATOR, "&")) {
-      readNT();
-      procBS(); 
-      buildNAryASTNode(ASTNodeType.AND, 2);
-    }
-  }
-
-  private void procBS() {
-    if (isCurrentToken(TokenType.RESERVED, "not")) { 
-      readNT();
-      procBP();
-      buildNAryASTNode(ASTNodeType.NOT, 1);
-    } else
-      procBP();
-  }
-
-  private void procBP() {
-    procA();
-    if (isCurrentToken(TokenType.RESERVED, "gr") || isCurrentToken(TokenType.OPERATOR, ">")) { 
-      readNT();
-      procA();
-      buildNAryASTNode(ASTNodeType.GR, 2);
-    } else if (isCurrentToken(TokenType.RESERVED, "ge") || isCurrentToken(TokenType.OPERATOR, ">=")) { 
-      readNT();
-      procA();
-      buildNAryASTNode(ASTNodeType.GE, 2);
-    } else if (isCurrentToken(TokenType.RESERVED, "ls") || isCurrentToken(TokenType.OPERATOR, "<")) { 
-      readNT();
-      procA(); 
-      buildNAryASTNode(ASTNodeType.LS, 2);
-    } else if (isCurrentToken(TokenType.RESERVED, "le") || isCurrentToken(TokenType.OPERATOR, "<=")) { 
-      readNT();
-      procA(); 
-      buildNAryASTNode(ASTNodeType.LE, 2);
-    } else if (isCurrentToken(TokenType.RESERVED, "eq")) { 
-      readNT();
-      procA(); 
-      buildNAryASTNode(ASTNodeType.EQ, 2);
-    } else if (isCurrentToken(TokenType.RESERVED, "ne")) { 
-      readNT();
-      procA(); 
-      buildNAryASTNode(ASTNodeType.NE, 2);
-    }
-  }
-
   // Arithmetic Expressions
   private void procA() {
     if (isCurrentToken(TokenType.OPERATOR, "+")) { 
@@ -281,6 +189,98 @@ public class Parser {
     }
   }
 
+  // Boolean Expressions
+  private void procB() {
+    procBT();
+    while (isCurrentToken(TokenType.RESERVED, "or")) {
+      readNT();
+      procBT();
+      buildNAryASTNode(ASTNodeType.OR, 2);
+    }
+  }
+
+  private void procBT() {
+    procBS(); 
+    while (isCurrentToken(TokenType.OPERATOR, "&")) {
+      readNT();
+      procBS(); 
+      buildNAryASTNode(ASTNodeType.AND, 2);
+    }
+  }
+
+  private void procBS() {
+    if (isCurrentToken(TokenType.RESERVED, "not")) { 
+      readNT();
+      procBP();
+      buildNAryASTNode(ASTNodeType.NOT, 1);
+    } else
+      procBP();
+  }
+
+  private void procBP() {
+    procA();
+    if (isCurrentToken(TokenType.RESERVED, "gr") || isCurrentToken(TokenType.OPERATOR, ">")) { 
+      readNT();
+      procA();
+      buildNAryASTNode(ASTNodeType.GR, 2);
+    } else if (isCurrentToken(TokenType.RESERVED, "ge") || isCurrentToken(TokenType.OPERATOR, ">=")) { 
+      readNT();
+      procA();
+      buildNAryASTNode(ASTNodeType.GE, 2);
+    } else if (isCurrentToken(TokenType.RESERVED, "ls") || isCurrentToken(TokenType.OPERATOR, "<")) { 
+      readNT();
+      procA(); 
+      buildNAryASTNode(ASTNodeType.LS, 2);
+    } else if (isCurrentToken(TokenType.RESERVED, "le") || isCurrentToken(TokenType.OPERATOR, "<=")) { 
+      readNT();
+      procA(); 
+      buildNAryASTNode(ASTNodeType.LE, 2);
+    } else if (isCurrentToken(TokenType.RESERVED, "eq")) { 
+      readNT();
+      procA(); 
+      buildNAryASTNode(ASTNodeType.EQ, 2);
+    } else if (isCurrentToken(TokenType.RESERVED, "ne")) { 
+      readNT();
+      procA(); 
+      buildNAryASTNode(ASTNodeType.NE, 2);
+    }
+  }
+
+  // Tuple expressions
+  private void procT() {
+    procTA();
+    int treesToPop = 0;
+    while (isCurrentToken(TokenType.OPERATOR, ",")) {
+      readNT();
+      procTA();
+      treesToPop++;
+    }
+    if (treesToPop > 0)
+      buildNAryASTNode(ASTNodeType.TAU, treesToPop + 1);
+  }
+
+  private void procTA() {
+    procTC();
+    while (isCurrentToken(TokenType.RESERVED, "aug")) {
+      readNT();
+      procTC();
+      buildNAryASTNode(ASTNodeType.AUG, 2);
+    }
+  }
+
+  private void procTC() {
+    procB();
+    if (isCurrentToken(TokenType.OPERATOR, "->")) {
+      readNT();
+      procTC();
+      if (!isCurrentToken(TokenType.OPERATOR, "|"))
+        throw new ParseException("TC: '|' expected");
+      readNT();
+      procTC();
+      buildNAryASTNode(ASTNodeType.CONDITIONAL, 3);
+    }
+  }
+
   // Rators and Rands
   private void procR() {
     procRN(); 
@@ -316,6 +316,43 @@ public class Parser {
         throw new ParseException("RN: ')' expected");
     } else if (isCurrentToken(TokenType.RESERVED, "dummy")) { 
       createTerminalASTNode(ASTNodeType.DUMMY, "dummy");
+    }
+  }
+
+  // Variables
+  private void procVB() {
+    if (isCurrentTokenType(TokenType.IDENTIFIER)) { 
+      readNT();
+    } else if (isCurrentTokenType(TokenType.L_PAREN)) {
+      readNT();
+      if (isCurrentTokenType(TokenType.R_PAREN)) { 
+        createTerminalASTNode(ASTNodeType.PAREN, "");
+        readNT();
+      } else { 
+        procVL(); 
+        if (!isCurrentTokenType(TokenType.R_PAREN))
+          throw new ParseException("VB: ')' expected");
+        readNT();
+      }
+    }
+  }
+
+  
+  private void procVL() {
+    if (!isCurrentTokenType(TokenType.IDENTIFIER))
+      throw new ParseException("VL: Identifier expected");
+    else {
+      readNT();
+      int treesToPop = 0;
+      while (isCurrentToken(TokenType.OPERATOR, ",")) { 
+        readNT();
+        if (!isCurrentTokenType(TokenType.IDENTIFIER))
+          throw new ParseException("VL: Identifier expected");
+        readNT();
+        treesToPop++;
+      }
+      if (treesToPop > 0)
+        buildNAryASTNode(ASTNodeType.COMMA, treesToPop + 1); 
     }
   }
 
@@ -397,41 +434,6 @@ public class Parser {
     }
   }
 
-  // Variables
-  private void procVB() {
-    if (isCurrentTokenType(TokenType.IDENTIFIER)) { 
-      readNT();
-    } else if (isCurrentTokenType(TokenType.L_PAREN)) {
-      readNT();
-      if (isCurrentTokenType(TokenType.R_PAREN)) { 
-        createTerminalASTNode(ASTNodeType.PAREN, "");
-        readNT();
-      } else { 
-        procVL(); 
-        if (!isCurrentTokenType(TokenType.R_PAREN))
-          throw new ParseException("VB: ')' expected");
-        readNT();
-      }
-    }
-  }
-
   
-  private void procVL() {
-    if (!isCurrentTokenType(TokenType.IDENTIFIER))
-      throw new ParseException("VL: Identifier expected");
-    else {
-      readNT();
-      int treesToPop = 0;
-      while (isCurrentToken(TokenType.OPERATOR, ",")) { 
-        readNT();
-        if (!isCurrentTokenType(TokenType.IDENTIFIER))
-          throw new ParseException("VL: Identifier expected");
-        readNT();
-        treesToPop++;
-      }
-      if (treesToPop > 0)
-        buildNAryASTNode(ASTNodeType.COMMA, treesToPop + 1); 
-    }
-  }
 
 }

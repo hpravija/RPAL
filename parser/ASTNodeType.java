@@ -1,4 +1,6 @@
 package parser;
+
+// Contains the AST Node Types
 public enum ASTNodeType {
   IDENTIFIER("<ID:%s>"),
   STRING("<STR:'%s'>"),

@@ -9,7 +9,7 @@ import parser.ASTNodeType;
 
 public class Delta extends ASTNode {
   private List<String> boundVars;
-  private Environment linkedEnv;
+  private Environment linkedEnvironment;
   private Stack<ASTNode> body;
   private int index;
 
@@ -18,8 +18,8 @@ public class Delta extends ASTNode {
     boundVars = new ArrayList<String>();
   }
 
-  public Delta accept(Copier nodeCopier) {
-    return nodeCopier.copy(this);
+  public Delta accept(Copier copier) {
+    return copier.copy(this);
   }
 
   @Override
@@ -55,11 +55,11 @@ public class Delta extends ASTNode {
     this.index = index;
   }
 
-  public Environment getLinkedEnv() {
-    return linkedEnv;
+  public Environment getLinkedEnvironment() {
+    return linkedEnvironment;
   }
 
-  public void setLinkedEnv(Environment linkedEnv) {
-    this.linkedEnv = linkedEnv;
+  public void setLinkedEnvironment(Environment linkedEnvironment) {
+    this.linkedEnvironment = linkedEnvironment;
   }
 }
