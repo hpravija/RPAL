@@ -1,20 +1,33 @@
-JFLAGS = -g
+# Java compiler
 JC = javac
 
-.SUFFIXES: .java .class
+# Directory structure
+SRC_DIR = .
+CSEM_DIR = csem
+PARSER_DIR = parser
+SCANNER_DIR = scanner
 
-.java.class:
-	$(JC) $(JFLAGS) $*.java
+# Java source files
+JAVA_FILES := $(wildcard $(SRC_DIR)/*.java) \
+              $(wildcard $(CSEM_DIR)/*.java) \
+              $(wildcard $(PARSER_DIR)/*.java) \
+              $(wildcard $(SCANNER_DIR)/*.java)
 
-CLASSES = \
-		  rpal20.java
+# Output directory
+OUTPUT_DIR = .
 
-default: classes
+# Object files
+OBJ_FILES := $(patsubst %.java, $(OUTPUT_DIR)/%.class, $(JAVA_FILES))
 
-classes: $(CLASSES:.java=.class)
+# Main target (default target)
+all: $(OBJ_FILES)
 
+# Compile Java files
+$(OUTPUT_DIR)/%.class: %.java
+	$(JC) -d $(OUTPUT_DIR) $<
+
+# Clean build
 clean:
-	$(RM) *.class
-	
-run:
-	java rpal20
+	find . -name "*.class" -type f -delete
+
+.PHONY: all clean

@@ -1,3 +1,4 @@
+package scanner;
 
 // Token types for the scanner
 public enum TokenType {

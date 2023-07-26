@@ -1,5 +1,10 @@
+package parser;
 
 import java.util.Stack;
+
+import scanner.Scanner;
+import scanner.Token;
+import scanner.TokenType;
 
 // Uses recursive descent parsing
 public class Parser {

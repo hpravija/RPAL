@@ -1,3 +1,4 @@
+package scanner;
 import java.util.regex.Pattern;
 
 // Used by the scanner for tokenizing

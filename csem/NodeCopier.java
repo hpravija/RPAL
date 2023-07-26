@@ -1,6 +1,9 @@
+package csem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
+import parser.ASTNode;
 
 // Giving copies of different nodes for later use
 public class NodeCopier {

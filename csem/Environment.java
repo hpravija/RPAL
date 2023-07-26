@@ -1,6 +1,9 @@
+package csem;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import parser.ASTNode;
 
 public class Environment {
   private Environment parent;

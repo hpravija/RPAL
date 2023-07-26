@@ -1,3 +1,4 @@
+package parser;
 public enum ASTNodeType {
   IDENTIFIER("<ID:%s>"),
   STRING("<STR:'%s'>"),

@@ -1,3 +1,7 @@
+package csem;
+import parser.ASTNode;
+import parser.ASTNodeType;
+
 public class Tuple extends ASTNode {
 
   public Tuple() {

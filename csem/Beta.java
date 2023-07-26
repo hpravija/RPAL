@@ -1,4 +1,8 @@
+package csem;
 import java.util.Stack;
+
+import parser.ASTNode;
+import parser.ASTNodeType;
 
 // For evaluating conditionals
 public class Beta extends ASTNode {

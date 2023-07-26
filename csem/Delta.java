@@ -1,7 +1,11 @@
+package csem;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
+import parser.ASTNode;
+import parser.ASTNodeType;
 
 public class Delta extends ASTNode {
   private List<String> boundVars;

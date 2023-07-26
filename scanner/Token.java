@@ -1,3 +1,4 @@
+package scanner;
 // Token passed from the scanner to parser
 public class Token {
   private TokenType type;
