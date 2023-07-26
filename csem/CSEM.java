@@ -19,6 +19,7 @@ public class CSEM {
     CSEStack = new Stack<ASTNode>();
   }
 
+  // processing for arithmetic operations
   private void binaryArithmeticOp(ASTNodeType type) {
     ASTNode rand1 = CSEStack.pop();
     ASTNode rand2 = CSEStack.pop();
@@ -73,6 +74,7 @@ public class CSEM {
     CSEStack.push(result);
   }
 
+  // processing for eq, ne
   private void binaryLogicalEqNeOp(ASTNodeType type) {
     ASTNode rand1 = CSEStack.pop();
     ASTNode rand2 = CSEStack.pop();
@@ -125,6 +127,7 @@ public class CSEM {
       pushTrueNode();
   }
 
+  // processing for or, and
   private void binaryLogicalOrAndOp(ASTNodeType type) {
     ASTNode rand1 = CSEStack.pop();
     ASTNode rand2 = CSEStack.pop();
@@ -151,6 +154,7 @@ public class CSEM {
     }
   }
 
+  // processing for aug
   private void augTuples() {
     ASTNode rand1 = CSEStack.pop();
     ASTNode rand2 = CSEStack.pop();
@@ -177,6 +181,7 @@ public class CSEM {
       pushTrueNode();
   }
 
+  // processing for neg
   private void neg() {
     ASTNode rand = CSEStack.pop();
 
@@ -265,6 +270,7 @@ public class CSEM {
     CSEStack.push(falseNode);
   }
 
+  // processing for stem function
   private void stem(ASTNode rand) {
 
     if (rand.getValue().isEmpty())
@@ -275,6 +281,7 @@ public class CSEM {
     CSEStack.push(rand);
   }
 
+  // processing ofr stern function
   private void stern(ASTNode rand) {
 
     if (rand.getValue().isEmpty() || rand.getValue().length() == 1)
@@ -285,6 +292,7 @@ public class CSEM {
     CSEStack.push(rand);
   }
 
+  // processing for conc function
   private void conc(ASTNode rand1, Stack<ASTNode> currentControlStack) {
     currentControlStack.pop();
     ASTNode rand2 = CSEStack.pop();
@@ -301,6 +309,7 @@ public class CSEM {
     CSEStack.push(rand);
   }
 
+  // processing for order function
   private void order(ASTNode rand) {
 
     ASTNode result = new ASTNode();
@@ -310,6 +319,7 @@ public class CSEM {
     CSEStack.push(result);
   }
 
+  // processing for isNullTuple function
   private void isNullTuple(ASTNode rand) {
 
     if (getNumChildren(rand) == 0)
