@@ -1,4 +1,5 @@
 package csem;
+
 import java.util.Stack;
 
 import parser.AST;
@@ -7,94 +8,20 @@ import parser.ASTNodeType;
 
 public class CSEMachine {
 
-  private Stack<ASTNode> valueStack;
+  private Stack<ASTNode> CSEStack;
   private Delta rootDelta;
 
   public CSEMachine(AST ast) {
     if (!ast.isStandardized())
-      throw new RuntimeException("AST has NOT been standardized!");
+      throw new RuntimeException("AST is not standardized!"); // AsT should be standardized earlier
     rootDelta = ast.createDeltas();
     rootDelta.setLinkedEnv(new Environment()); // primitive environment
-    valueStack = new Stack<ASTNode>();
-  }
-
-  public void evaluateProgram() {
-    processControlStack(rootDelta, rootDelta.getLinkedEnv());
-  }
-
-  private void processControlStack(Delta currentDelta, Environment currentEnv) {
-    Stack<ASTNode> controlStack = new Stack<ASTNode>();
-    controlStack.addAll(currentDelta.getBody());
-
-    while (!controlStack.isEmpty())
-      processCurrentNode(currentDelta, currentEnv, controlStack);
-  }
-
-  private void processCurrentNode(Delta currentDelta, Environment currentEnv, Stack<ASTNode> currentControlStack) {
-    ASTNode node = currentControlStack.pop();
-    if (applyBinaryOperation(node))
-      return;
-    else if (applyUnaryOperation(node))
-      return;
-    else {
-      switch (node.getType()) {
-        case IDENTIFIER:
-          handleIdentifiers(node, currentEnv);
-          break;
-        case NIL:
-        case TAU:
-          createTuple(node);
-          break;
-        case BETA:
-          handleBeta((Beta) node, currentControlStack);
-          break;
-        case GAMMA:
-          applyGamma(currentDelta, node, currentEnv, currentControlStack);
-          break;
-        case DELTA:
-          ((Delta) node).setLinkedEnv(currentEnv); // CSE rule 2
-          valueStack.push(node);
-          break;
-        default:
-          valueStack.push(node);
-          break;
-      }
-    }
-  }
-
-  // CSE rule 6
-  private boolean applyBinaryOperation(ASTNode rator) {
-    switch (rator.getType()) {
-      case PLUS:
-      case MINUS:
-      case MULT:
-      case DIV:
-      case EXP:
-      case LS:
-      case LE:
-      case GR:
-      case GE:
-        binaryArithmeticOp(rator.getType());
-        return true;
-      case EQ:
-      case NE:
-        binaryLogicalEqNeOp(rator.getType());
-        return true;
-      case OR:
-      case AND:
-        binaryLogicalOrAndOp(rator.getType());
-        return true;
-      case AUG:
-        augTuples();
-        return true;
-      default:
-        return false;
-    }
+    CSEStack = new Stack<ASTNode>();
   }
 
   private void binaryArithmeticOp(ASTNodeType type) {
-    ASTNode rand1 = valueStack.pop();
-    ASTNode rand2 = valueStack.pop();
+    ASTNode rand1 = CSEStack.pop();
+    ASTNode rand2 = CSEStack.pop();
 
     ASTNode result = new ASTNode();
     result.setType(ASTNodeType.INTEGER);
@@ -143,12 +70,12 @@ public class CSEMachine {
       default:
         break;
     }
-    valueStack.push(result);
+    CSEStack.push(result);
   }
 
   private void binaryLogicalEqNeOp(ASTNodeType type) {
-    ASTNode rand1 = valueStack.pop();
-    ASTNode rand2 = valueStack.pop();
+    ASTNode rand1 = CSEStack.pop();
+    ASTNode rand2 = CSEStack.pop();
 
     if (rand1.getType() == ASTNodeType.TRUE || rand1.getType() == ASTNodeType.FALSE) {
       compareTruthValues(rand1, rand2, type);
@@ -199,8 +126,8 @@ public class CSEMachine {
   }
 
   private void binaryLogicalOrAndOp(ASTNodeType type) {
-    ASTNode rand1 = valueStack.pop();
-    ASTNode rand2 = valueStack.pop();
+    ASTNode rand1 = CSEStack.pop();
+    ASTNode rand2 = CSEStack.pop();
 
     if ((rand1.getType() == ASTNodeType.TRUE || rand1.getType() == ASTNodeType.FALSE) &&
         (rand2.getType() == ASTNodeType.TRUE || rand2.getType() == ASTNodeType.FALSE)) {
@@ -225,9 +152,8 @@ public class CSEMachine {
   }
 
   private void augTuples() {
-    ASTNode rand1 = valueStack.pop();
-    ASTNode rand2 = valueStack.pop();
-
+    ASTNode rand1 = CSEStack.pop();
+    ASTNode rand2 = CSEStack.pop();
 
     ASTNode childNode = rand1.getChild();
     if (childNode == null)
@@ -239,25 +165,11 @@ public class CSEMachine {
     }
     rand2.setSibling(null);
 
-    valueStack.push(rand1);
-  }
-
-  // CSE rule 7
-  private boolean applyUnaryOperation(ASTNode rator) {
-    switch (rator.getType()) {
-      case NOT:
-        not();
-        return true;
-      case NEG:
-        neg();
-        return true;
-      default:
-        return false;
-    }
+    CSEStack.push(rand1);
   }
 
   private void not() {
-    ASTNode rand = valueStack.pop();
+    ASTNode rand = CSEStack.pop();
 
     if (rand.getType() == ASTNodeType.TRUE)
       pushFalseNode();
@@ -266,19 +178,169 @@ public class CSEMachine {
   }
 
   private void neg() {
-    ASTNode rand = valueStack.pop();
+    ASTNode rand = CSEStack.pop();
 
     ASTNode result = new ASTNode();
     result.setType(ASTNodeType.INTEGER);
     result.setValue(Integer.toString(-1 * Integer.parseInt(rand.getValue())));
-    valueStack.push(result);
+    CSEStack.push(result);
+  }
+
+  private boolean evaluateKeywords(ASTNode rator, ASTNode rand, Stack<ASTNode> existingControlStack) {
+    switch (rator.getValue()) {
+      case "Isstring":
+        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.STRING);
+        return true;
+      case "Isinteger":
+        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.INTEGER);
+        return true;
+      case "Isfunction":
+        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.DELTA);
+        return true;
+      case "Istruthvalue":
+        if (rand.getType() == ASTNodeType.TRUE || rand.getType() == ASTNodeType.FALSE)
+          pushTrueNode();
+        else
+          pushFalseNode();
+        return true;
+      case "Null":
+        isNullTuple(rand);
+        return true;
+      case "Isdummy":
+        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.DUMMY);
+        return true;
+      case "Istuple":
+        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.TUPLE);
+        return true;
+      case "Stem":
+        stem(rand);
+        return true;
+      case "Stern":
+        stern(rand);
+        return true;
+      case "Conc":
+      case "conc":
+        conc(rand, existingControlStack);
+        return true;
+      case "Print":
+      case "print":
+        printNodeValue(rand);
+        pushDummyNode();
+        return true;
+      case "ItoS":
+        itos(rand);
+        return true;
+      case "Order":
+        order(rand);
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  private void checkTypeAndPushTrueOrFalse(ASTNode rand, ASTNodeType type) {
+    if (rand.getType() == type)
+      pushTrueNode();
+    else
+      pushFalseNode();
+  }
+
+  private void pushTrueNode() {
+    ASTNode trueNode = new ASTNode();
+    trueNode.setType(ASTNodeType.TRUE);
+    trueNode.setValue("true");
+    CSEStack.push(trueNode);
+  }
+
+  private void pushFalseNode() {
+    ASTNode falseNode = new ASTNode();
+    falseNode.setType(ASTNodeType.FALSE);
+    falseNode.setValue("false");
+    CSEStack.push(falseNode);
+  }
+
+  private void pushDummyNode() {
+    ASTNode falseNode = new ASTNode();
+    falseNode.setType(ASTNodeType.DUMMY);
+    CSEStack.push(falseNode);
+  }
+
+  private void stem(ASTNode rand) {
+
+    if (rand.getValue().isEmpty())
+      rand.setValue("");
+    else
+      rand.setValue(rand.getValue().substring(0, 1));
+
+    CSEStack.push(rand);
+  }
+
+  private void stern(ASTNode rand) {
+
+    if (rand.getValue().isEmpty() || rand.getValue().length() == 1)
+      rand.setValue("");
+    else
+      rand.setValue(rand.getValue().substring(1));
+
+    CSEStack.push(rand);
+  }
+
+  private void conc(ASTNode rand1, Stack<ASTNode> currentControlStack) {
+    currentControlStack.pop();
+    ASTNode rand2 = CSEStack.pop();
+
+    ASTNode result = new ASTNode();
+    result.setType(ASTNodeType.STRING);
+    result.setValue(rand1.getValue() + rand2.getValue());
+
+    CSEStack.push(result);
+  }
+
+  private void itos(ASTNode rand) {
+    rand.setType(ASTNodeType.STRING);
+    CSEStack.push(rand);
+  }
+
+  private void order(ASTNode rand) {
+
+    ASTNode result = new ASTNode();
+    result.setType(ASTNodeType.INTEGER);
+    result.setValue(Integer.toString(getNumChildren(rand)));
+
+    CSEStack.push(result);
+  }
+
+  private void isNullTuple(ASTNode rand) {
+
+    if (getNumChildren(rand) == 0)
+      pushTrueNode();
+    else
+      pushFalseNode();
+  }
+
+  // Taking nth element of the tuple
+  private ASTNode getNthTupleChild(Tuple tupleNode, int n) {
+    ASTNode childNode = tupleNode.getChild();
+    for (int i = 1; i < n; ++i) { // index starting from 1
+      if (childNode == null)
+        break;
+      childNode = childNode.getSibling();
+    }
+    return childNode;
+  }
+
+  private void processIdentifiers(ASTNode node, Environment existingEnvironment) {
+    if (existingEnvironment.lookup(node.getValue()) != null) // CSE rule 1
+      CSEStack.push(existingEnvironment.lookup(node.getValue()));
+    else if (isReservedIdentifier(node.getValue()))
+      CSEStack.push(node);
   }
 
   // CSE rule 3
   private void applyGamma(Delta currentDelta, ASTNode node, Environment currentEnv,
       Stack<ASTNode> currentControlStack) {
-    ASTNode rator = valueStack.pop();
-    ASTNode rand = valueStack.pop();
+    ASTNode rator = CSEStack.pop();
+    ASTNode rand = CSEStack.pop();
 
     if (rator.getType() == ASTNodeType.DELTA) {
       Delta nextDelta = (Delta) rator;
@@ -297,186 +359,82 @@ public class CSEMachine {
         }
       }
 
-      processControlStack(nextDelta, newEnv);
+      controlStack(nextDelta, newEnv);
       return;
     } else if (rator.getType() == ASTNodeType.YSTAR) {
       // CSE rule 12
 
       Eta etaNode = new Eta();
       etaNode.setDelta((Delta) rand);
-      valueStack.push(etaNode);
+      CSEStack.push(etaNode);
       return;
     } else if (rator.getType() == ASTNodeType.ETA) {
       // CSE rule 13
-      valueStack.push(rand);
-      valueStack.push(rator);
-      valueStack.push(((Eta) rator).getDelta());
+      CSEStack.push(rand);
+      CSEStack.push(rator);
+      CSEStack.push(((Eta) rator).getDelta());
       currentControlStack.push(node);
       currentControlStack.push(node);
       return;
     } else if (rator.getType() == ASTNodeType.TUPLE) {
       tupleSelection((Tuple) rator, rand);
       return;
-    } else if (evaluateReservedIdentifiers(rator, rand, currentControlStack))
+    } else if (evaluateKeywords(rator, rand, currentControlStack))
       return;
   }
 
-  private boolean evaluateReservedIdentifiers(ASTNode rator, ASTNode rand, Stack<ASTNode> currentControlStack) {
-    switch (rator.getValue()) {
-      case "Isinteger":
-        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.INTEGER);
+  // CSE rule 6
+  private boolean applyBinaryOperation(ASTNode rator) {
+    switch (rator.getType()) {
+      case PLUS:
+      case MINUS:
+      case MULT:
+      case DIV:
+      case EXP:
+      case LS:
+      case LE:
+      case GR:
+      case GE:
+        binaryArithmeticOp(rator.getType());
         return true;
-      case "Isstring":
-        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.STRING);
+      case EQ:
+      case NE:
+        binaryLogicalEqNeOp(rator.getType());
         return true;
-      case "Isdummy":
-        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.DUMMY);
+      case OR:
+      case AND:
+        binaryLogicalOrAndOp(rator.getType());
         return true;
-      case "Isfunction":
-        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.DELTA);
-        return true;
-      case "Istuple":
-        checkTypeAndPushTrueOrFalse(rand, ASTNodeType.TUPLE);
-        return true;
-      case "Istruthvalue":
-        if (rand.getType() == ASTNodeType.TRUE || rand.getType() == ASTNodeType.FALSE)
-          pushTrueNode();
-        else
-          pushFalseNode();
-        return true;
-      case "Stem":
-        stem(rand);
-        return true;
-      case "Stern":
-        stern(rand);
-        return true;
-      case "Conc":
-      case "conc":
-        conc(rand, currentControlStack);
-        return true;
-      case "Print":
-      case "print":
-        printNodeValue(rand);
-        pushDummyNode();
-        return true;
-      case "ItoS":
-        itos(rand);
-        return true;
-      case "Order":
-        order(rand);
-        return true;
-      case "Null":
-        isNullTuple(rand);
+      case AUG:
+        augTuples();
         return true;
       default:
         return false;
     }
   }
 
-  private void checkTypeAndPushTrueOrFalse(ASTNode rand, ASTNodeType type) {
-    if (rand.getType() == type)
-      pushTrueNode();
-    else
-      pushFalseNode();
-  }
-
-  private void pushTrueNode() {
-    ASTNode trueNode = new ASTNode();
-    trueNode.setType(ASTNodeType.TRUE);
-    trueNode.setValue("true");
-    valueStack.push(trueNode);
-  }
-
-  private void pushFalseNode() {
-    ASTNode falseNode = new ASTNode();
-    falseNode.setType(ASTNodeType.FALSE);
-    falseNode.setValue("false");
-    valueStack.push(falseNode);
-  }
-
-  private void pushDummyNode() {
-    ASTNode falseNode = new ASTNode();
-    falseNode.setType(ASTNodeType.DUMMY);
-    valueStack.push(falseNode);
-  }
-
-  private void stem(ASTNode rand) {
-
-    if (rand.getValue().isEmpty())
-      rand.setValue("");
-    else
-      rand.setValue(rand.getValue().substring(0, 1));
-
-    valueStack.push(rand);
-  }
-
-  private void stern(ASTNode rand) {
-
-    if (rand.getValue().isEmpty() || rand.getValue().length() == 1)
-      rand.setValue("");
-    else
-      rand.setValue(rand.getValue().substring(1));
-
-    valueStack.push(rand);
-  }
-
-  private void conc(ASTNode rand1, Stack<ASTNode> currentControlStack) {
-    currentControlStack.pop();
-    ASTNode rand2 = valueStack.pop();
-
-    ASTNode result = new ASTNode();
-    result.setType(ASTNodeType.STRING);
-    result.setValue(rand1.getValue() + rand2.getValue());
-
-    valueStack.push(result);
-  }
-
-  private void itos(ASTNode rand) {
-    rand.setType(ASTNodeType.STRING);
-    valueStack.push(rand);
-  }
-
-  private void order(ASTNode rand) {
-
-    ASTNode result = new ASTNode();
-    result.setType(ASTNodeType.INTEGER);
-    result.setValue(Integer.toString(getNumChildren(rand)));
-
-    valueStack.push(result);
-  }
-
-  private void isNullTuple(ASTNode rand) {
-
-    if (getNumChildren(rand) == 0)
-      pushTrueNode();
-    else
-      pushFalseNode();
-  }
-
-  // CSE rule 10
-  private void tupleSelection(Tuple rator, ASTNode rand) {
-
-    ASTNode result = getNthTupleChild(rator, Integer.parseInt(rand.getValue()));
-
-    valueStack.push(result);
-  }
-
-  // Taking nth element of the tuple
-  private ASTNode getNthTupleChild(Tuple tupleNode, int n) {
-    ASTNode childNode = tupleNode.getChild();
-    for (int i = 1; i < n; ++i) { // index starting from 1
-      if (childNode == null)
-        break;
-      childNode = childNode.getSibling();
+  // CSE rule 7
+  private boolean applyUnaryOperation(ASTNode rator) {
+    switch (rator.getType()) {
+      case NOT:
+        not();
+        return true;
+      case NEG:
+        neg();
+        return true;
+      default:
+        return false;
     }
-    return childNode;
   }
 
-  private void handleIdentifiers(ASTNode node, Environment currentEnv) {
-    if (currentEnv.lookup(node.getValue()) != null) // CSE rule 1
-      valueStack.push(currentEnv.lookup(node.getValue()));
-    else if (isReservedIdentifier(node.getValue()))
-      valueStack.push(node);
+  // CSE rule 8
+  private void processBeta(Beta node, Stack<ASTNode> existingControlStack) {
+    ASTNode conditionResultNode = CSEStack.pop();
+
+    if (conditionResultNode.getType() == ASTNodeType.TRUE)
+      existingControlStack.addAll(node.getThenPart());
+    else
+      existingControlStack.addAll(node.getElsePart());
   }
 
   // CSE rule 9
@@ -484,35 +442,33 @@ public class CSEMachine {
     int numChildren = getNumChildren(node);
     Tuple tupleNode = new Tuple();
     if (numChildren == 0) {
-      valueStack.push(tupleNode);
+      CSEStack.push(tupleNode);
       return;
     }
 
     ASTNode childNode = null, tempNode = null;
     for (int i = 0; i < numChildren; ++i) {
       if (childNode == null)
-        childNode = valueStack.pop();
+        childNode = CSEStack.pop();
       else if (tempNode == null) {
-        tempNode = valueStack.pop();
+        tempNode = CSEStack.pop();
         childNode.setSibling(tempNode);
       } else {
-        tempNode.setSibling(valueStack.pop());
+        tempNode.setSibling(CSEStack.pop());
         tempNode = tempNode.getSibling();
       }
     }
     tempNode.setSibling(null);
     tupleNode.setChild(childNode);
-    valueStack.push(tupleNode);
+    CSEStack.push(tupleNode);
   }
 
-  // CSE rule 8
-  private void handleBeta(Beta node, Stack<ASTNode> currentControlStack) {
-    ASTNode conditionResultNode = valueStack.pop();
+  // CSE rule 10
+  private void tupleSelection(Tuple rator, ASTNode rand) {
 
-    if (conditionResultNode.getType() == ASTNodeType.TRUE)
-      currentControlStack.addAll(node.getThenPart());
-    else
-      currentControlStack.addAll(node.getElsePart());
+    ASTNode result = getNthTupleChild(rator, Integer.parseInt(rand.getValue()));
+
+    CSEStack.push(result);
   }
 
   private int getNumChildren(ASTNode node) {
@@ -555,4 +511,51 @@ public class CSEMachine {
     return false;
   }
 
+  // processing the current node
+  private void processExistingNode(Delta existingDelta, Environment existingEnvironment,
+      Stack<ASTNode> existingControlStack) {
+    ASTNode node = existingControlStack.pop();
+    if (applyBinaryOperation(node))
+      return;
+    else if (applyUnaryOperation(node))
+      return;
+    else {
+      switch (node.getType()) {
+        case IDENTIFIER:
+          processIdentifiers(node, existingEnvironment);
+          break;
+        case NIL:
+        case TAU:
+          createTuple(node);
+          break;
+        case BETA:
+          processBeta((Beta) node, existingControlStack);
+          break;
+        case GAMMA:
+          applyGamma(existingDelta, node, existingEnvironment, existingControlStack);
+          break;
+        case DELTA:
+          ((Delta) node).setLinkedEnv(existingEnvironment); // CSE rule 2
+          CSEStack.push(node);
+          break;
+        default:
+          CSEStack.push(node);
+          break;
+      }
+    }
+  }
+
+  // processing the controlStack
+  private void controlStack(Delta existingDelta, Environment existingEnvironment) {
+    Stack<ASTNode> controlStack = new Stack<ASTNode>();
+    controlStack.addAll(existingDelta.getBody());
+
+    while (!controlStack.isEmpty())
+      processExistingNode(existingDelta, existingEnvironment, controlStack);
+  }
+
+  // evaluating the program
+  public void evaluateProgram() {
+    controlStack(rootDelta, rootDelta.getLinkedEnv());
+  }
 }
