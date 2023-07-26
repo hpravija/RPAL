@@ -1,5 +1,5 @@
 package parser;
-import csem.NodeCopier;
+import csem.Copier;
 
 public class ASTNode {
   private ASTNodeType type;
@@ -45,7 +45,7 @@ public class ASTNode {
   }
 
 
-  public ASTNode accept(NodeCopier nodeCopier) {
+  public ASTNode accept(Copier nodeCopier) {
     return nodeCopier.copy(this);
   }
 

@@ -6,12 +6,12 @@ import parser.AST;
 import parser.ASTNode;
 import parser.ASTNodeType;
 
-public class CSEMachine {
+public class CSEM {
 
   private Stack<ASTNode> CSEStack;
   private Delta rootDelta;
 
-  public CSEMachine(AST ast) {
+  public CSEM(AST ast) {
     if (!ast.isStandardized())
       throw new RuntimeException("AST is not standardized!"); // AsT should be standardized earlier
     rootDelta = ast.createDeltas();

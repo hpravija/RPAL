@@ -1,7 +1,7 @@
 
 import java.io.IOException;
 
-import csem.CSEMachine;
+import csem.CSEM;
 import parser.AST;
 import parser.ParseException;
 import parser.Parser;
@@ -59,7 +59,7 @@ public class rpal20 {
   }
 
   private static void evaluateST(AST ast) {
-    CSEMachine csem = new CSEMachine(ast);
+    CSEM csem = new CSEM(ast);
     csem.evaluateProgram();
     System.out.println();
   }

@@ -23,7 +23,7 @@ public class Tuple extends ASTNode {
     return printValue;
   }
 
-  public Tuple accept(NodeCopier nodeCopier) {
+  public Tuple accept(Copier nodeCopier) {
     return nodeCopier.copy(this);
   }
 

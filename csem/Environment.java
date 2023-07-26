@@ -29,7 +29,7 @@ public class Environment {
     returnVal = map.get(key);
 
     if (returnVal != null)
-      return returnVal.accept(new NodeCopier());
+      return returnVal.accept(new Copier());
 
     if (parent != null)
       return parent.lookup(key);

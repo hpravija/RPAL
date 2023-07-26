@@ -31,7 +31,7 @@ public class Beta extends ASTNode {
     this.elsePart = elsePart;
   }
 
-  public Beta accept(NodeCopier nodeCopier) {
+  public Beta accept(Copier nodeCopier) {
     return nodeCopier.copy(this);
   }
 

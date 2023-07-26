@@ -22,7 +22,7 @@ public class Eta extends ASTNode {
     this.delta = delta;
   }
 
-  public Eta accept(NodeCopier nodeCopier) {
+  public Eta accept(Copier nodeCopier) {
     return nodeCopier.copy(this);
   }
 

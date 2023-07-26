@@ -18,7 +18,7 @@ public class Delta extends ASTNode {
     boundVars = new ArrayList<String>();
   }
 
-  public Delta accept(NodeCopier nodeCopier) {
+  public Delta accept(Copier nodeCopier) {
     return nodeCopier.copy(this);
   }
 
